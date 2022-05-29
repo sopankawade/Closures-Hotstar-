@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="">
+  </head>
+  <style>
+      input{
+          width: 200px;
+          border: 1px solid rgb(8, 229, 8);
+      }
+      #movies{
+          height: 200px;
+          width: 206px;
+          border: 1px solid black ;
+          border-top: none;
+          overflow: scroll;
+      }
+      #appended{
+          cursor: pointer;
+      }
+      #clickedMovie{
+          margin: auto;
+          width: 350px;
+          height: auto;
+          margin-top: -200px;
+      }
+      #clickedMovie img{
+        width: 100%;
+        height: 450px;
+      }
+      #clickedMovie h3, #clickedMovie p{
+          margin-left: 25%;
+      }
+
+
+  </style>
+  <body>
+
+    <!-- <input oninput="main()" type="text" id="query"> -->
+    <input oninput="debounceFunction(main, 1000)" type="text" id="query">
+    <div id="movies"></div>
+    <div id="clickedMovie"></div>
+
+  </body>
+</html>
+
+<script>
+
+    // url = `https://www.omdbapi.com/?s=${moviename}&apikey=b806e47c`
+
+    let id;
+
+    let movies_div = document.getElementById("movies")
+    let clicked_movie = document.getElementById("clickedMovie")
+
+    async function searchMovies(q) {
+        try{
+            let url = `https://www.omdbapi.com/?s=${q}&apikey=b806e47c`;
+
+            let res = await fetch(url);
+
+            let data = await res.json(); 
+        //console.log("data:", data);
+
+            return data.Search;
+        } catch(error) {
+            console.log("error:", error);
+        }
+        
+    }
+
+    function appendMovies(movies) {
+
+        movies_div.innerHTML = null;
+
+        //console.log("movies:",movies)
+
+        if(movies === undefined){
+            return false;
+        }
+        movies.forEach(function (el) {
+            let p = document.createElement("p");
+            p.setAttribute("id", "appended")
+            p.addEventListener("click", function() {
+            showMovie(el);
+            });
+            p.innerText = el.Title;
+
+            movies_div.append(p);
+        });
+    }
+    
+    async function main() {
+        let query = document.getElementById("query").value;
+        //console.log("query:", query)
+
+        let response = searchMovies(query);    // who is returning a promise
+        //console.log("response:", response) // Searchmovives is returning a promise, async function returns a Promise
+
+        let data = await response;
+        //console.log("data:", data)
+
+        appendMovies(data);
+    }
+
+
+    // main("a") --> settimeout()
+
+
+    function debounceFunction(func, delay) {
+        if(id) {
+            clearTimeout(id)
+        }
+
+        id = setTimeout(function(){
+            func()
+        }, delay)
+
+    }
+
+    // clicked movie==>>
+
+    function showMovie(el) {
+        clickedMovie.innerHTML=null
+    //console.log("el:", el);
+    let div = document.createElement("div");
+
+    let img = document.createElement("img");
+    img.src = el.Poster;
+
+    let h3 = document.createElement("h3");
+    h3.innerText = `Title:- ${el.Title}`;
+
+    let p = document.createElement("p");
+    p.innerText = `Year of release:- ${el.Year}`;
+
+    div.append(img, h3, p);
+    clickedMovie.append(div)
+    
+    
+}
+
+
+
+</script>
